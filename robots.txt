@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://diviyield.netlify.app/sitemap.xml
