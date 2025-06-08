@@ -1,289 +1,356 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="google-site-verification"
+      content="U-GWwZOKUY-FqRJYQu4ealLEaLnFK4WTKgDI7SCbS3E"
+    />
     <title>DiviYield | 초간단 주식 배당금 세후 계산기</title>
-    <meta name="description" content="DiviYield에서 보유 주식의 예상 세후 배당금과 배당 수익률을 초간단으로 계산하세요. 주식 배당금 세금 자동 적용.">
-    <meta name="keywords" content="주식 배당금 계산기, 배당금 세금, 세후 배당금, 배당 수익률, 주식 배당 소득세, 고배당주, 월배당, 주식 투자">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/manifest.json">
+    <meta
+      name="description"
+      content="DiviYield에서 보유 주식의 예상 세후 배당금과 배당 수익률을 초간단으로 계산하세요. 주식 배당금 세금 자동 적용."
+    />
+    <meta
+      name="keywords"
+      content="주식 배당금 계산기, 배당금 세금, 세후 배당금, 배당 수익률, 주식 배당 소득세, 고배당주, 월배당, 주식 투자"
+    />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
 
     <style>
-        /* CSS inlined for simplicity as requested */
-        body {
-            font-family: 'Noto Sans KR', sans-serif; /* 한국어 폰트 추가 */
-            margin: 0;
-            padding: 20px;
-            background-color: #f8f8f8;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap'); /* Google Fonts 임포트 */
+      /* CSS inlined for simplicity as requested */
+      body {
+        font-family: "Noto Sans KR", sans-serif; /* 한국어 폰트 추가 */
+        margin: 0;
+        padding: 20px;
+        background-color: #f8f8f8;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        box-sizing: border-box;
+      }
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap"); /* Google Fonts 임포트 */
 
+      .container {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 500px;
+        text-align: center;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+      }
+      h1 {
+        color: #2c3e50;
+        font-size: 2em;
+        margin-bottom: 15px;
+        font-weight: 700;
+      }
+      h2 {
+        color: #34495e;
+        font-size: 1.2em;
+        margin-bottom: 25px;
+        font-weight: 400;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #555;
+        text-align: left;
+      }
+      input[type="text"],
+      input[type="number"] {
+        width: calc(100% - 20px);
+        padding: 12px 10px;
+        margin-bottom: 18px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1.1em;
+        box-sizing: border-box;
+      }
+      button {
+        background-color: #4caf50; /* Green */
+        color: white;
+        padding: 15px 25px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.2em;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        width: 100%;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      #results {
+        margin-top: 30px;
+        padding: 20px;
+        background-color: #e8f5e9; /* Light green background */
+        border-radius: 10px;
+        text-align: left;
+        border: 1px solid #d0e7d0;
+      }
+      #results p {
+        margin-bottom: 10px;
+        font-size: 1.1em;
+        line-height: 1.6;
+        color: #333;
+      }
+      #results p strong {
+        color: #28a745; /* Darker green for emphasis */
+      }
+      #results .error-message {
+        color: #d32f2f; /* Red for error messages */
+        font-weight: bold;
+      }
+      footer {
+        margin-top: auto; /* Push to bottom */
+        padding-top: 20px;
+        color: #777;
+        font-size: 0.9em;
+      }
+
+      /* Responsive design */
+      @media (max-width: 600px) {
+        body {
+          padding: 15px;
+        }
         .container {
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-            box-sizing: border-box;
-            margin-bottom: 20px;
+          padding: 20px;
         }
         h1 {
-            color: #2c3e50;
-            font-size: 2em;
-            margin-bottom: 15px;
-            font-weight: 700;
+          font-size: 1.8em;
         }
         h2 {
-            color: #34495e;
-            font-size: 1.2em;
-            margin-bottom: 25px;
-            font-weight: 400;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-            text-align: left;
-        }
-        input[type="text"],
-        input[type="number"] {
-            width: calc(100% - 20px);
-            padding: 12px 10px;
-            margin-bottom: 18px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1.1em;
-            box-sizing: border-box;
+          font-size: 1.1em;
         }
         button {
-            background-color: #4CAF50; /* Green */
-            color: white;
-            padding: 15px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.2em;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-            width: 100%;
+          font-size: 1.1em;
+          padding: 12px 20px;
         }
-        button:hover {
-            background-color: #45a049;
-        }
-        #results {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #e8f5e9; /* Light green background */
-            border-radius: 10px;
-            text-align: left;
-            border: 1px solid #d0e7d0;
-        }
-        #results p {
-            margin-bottom: 10px;
-            font-size: 1.1em;
-            line-height: 1.6;
-            color: #333;
-        }
-        #results p strong {
-            color: #28a745; /* Darker green for emphasis */
-        }
-        #results .error-message {
-            color: #d32f2f; /* Red for error messages */
-            font-weight: bold;
-        }
-        footer {
-            margin-top: auto; /* Push to bottom */
-            padding-top: 20px;
-            color: #777;
-            font-size: 0.9em;
-        }
-
-        /* Responsive design */
-        @media (max-width: 600px) {
-            body {
-                padding: 15px;
-            }
-            .container {
-                padding: 20px;
-            }
-            h1 {
-                font-size: 1.8em;
-            }
-            h2 {
-                font-size: 1.1em;
-            }
-            button {
-                font-size: 1.1em;
-                padding: 12px 20px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>DiviYield</h1>
-        <h2>초간단 주식 배당금 세후 계산기</h2>
+      <h1>DiviYield</h1>
+      <h2>초간단 주식 배당금 세후 계산기</h2>
 
-        <form id="dividendForm">
-            <label for="stockName">주식 종목명 (또는 티커):</label>
-            <input type="text" id="stockName" placeholder="예: 삼성전자 또는 005930" required>
+      <form id="dividendForm">
+        <label for="stockName">주식 종목명 (또는 티커):</label>
+        <input
+          type="text"
+          id="stockName"
+          placeholder="예: 삼성전자 또는 005930"
+          required
+        />
 
-            <label for="shares">보유 주식 수:</label>
-            <input type="number" id="shares" placeholder="예: 100" required min="1">
+        <label for="shares">보유 주식 수:</label>
+        <input
+          type="number"
+          id="shares"
+          placeholder="예: 100"
+          required
+          min="1"
+        />
 
-            <label for="purchasePrice">매수 단가 (1주당):</label>
-            <input type="number" id="purchasePrice" placeholder="예: 70000" required min="1">
+        <label for="purchasePrice">매수 단가 (1주당):</label>
+        <input
+          type="number"
+          id="purchasePrice"
+          placeholder="예: 70000"
+          required
+          min="1"
+        />
 
-            <button type="submit">배당금 계산하기</button>
-        </form>
+        <button type="submit">배당금 계산하기</button>
+      </form>
 
-        <div id="results">
-            <p>입력값을 넣고 "배당금 계산하기" 버튼을 눌러주세요.</p>
-        </div>
+      <div id="results">
+        <p>입력값을 넣고 "배당금 계산하기" 버튼을 눌러주세요.</p>
+      </div>
     </div>
 
     <footer>
-        <p>&copy; 2025 DiviYield. All rights reserved.</p>
-        <p>Disclaimer: 본 계산기는 예상치를 제공하며 실제 배당금 및 세금과는 차이가 있을 수 있습니다. 투자 결정은 본인의 판단 하에 이루어져야 합니다.</p>
+      <p>&copy; 2025 DiviYield. All rights reserved.</p>
+      <p>
+        Disclaimer: 본 계산기는 예상치를 제공하며 실제 배당금 및 세금과는 차이가
+        있을 수 있습니다. 투자 결정은 본인의 판단 하에 이루어져야 합니다.
+      </p>
     </footer>
 
     <script>
-        // JavaScript inlined for simplicity as requested
-        const stockNameInput = document.getElementById('stockName');
-        const sharesInput = document.getElementById('shares');
-        const purchasePriceInput = document.getElementById('purchasePrice');
-        const dividendForm = document.getElementById('dividendForm');
-        const resultsDiv = document.getElementById('results');
+      // JavaScript inlined for simplicity as requested
+      const stockNameInput = document.getElementById("stockName");
+      const sharesInput = document.getElementById("shares");
+      const purchasePriceInput = document.getElementById("purchasePrice");
+      const dividendForm = document.getElementById("dividendForm");
+      const resultsDiv = document.getElementById("results");
 
-        const TAX_RATE = 0.154; // 한국 배당소득세율 (지방소득세 포함)
+      const TAX_RATE = 0.154; // 한국 배당소득세율 (지방소득세 포함)
 
-        // API Key for Alpha Vantage (replace with your actual key or consider a proxy)
-        // For production, consider server-side fetching or a proxy to hide API key
-        const ALPHA_VANTAGE_API_KEY = 'YOUR_ALPHA_VANTAGE_API_KEY'; // Replace with your actual key
+      // API Key for Alpha Vantage (replace with your actual key or consider a proxy)
+      // For production, consider server-side fetching or a proxy to hide API key
+      const ALPHA_VANTAGE_API_KEY = "9F03DAX98ND2CDBZ"; // Replace with your actual key
 
-        // Load saved data from localStorage on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedStockName = localStorage.getItem('diviyield_stockName');
-            const savedShares = localStorage.getItem('diviyield_shares');
-            const savedPurchasePrice = localStorage.getItem('diviyield_purchasePrice');
+      // Load saved data from localStorage on page load
+      document.addEventListener("DOMContentLoaded", () => {
+        const savedStockName = localStorage.getItem("diviyield_stockName");
+        const savedShares = localStorage.getItem("diviyield_shares");
+        const savedPurchasePrice = localStorage.getItem(
+          "diviyield_purchasePrice"
+        );
 
-            if (savedStockName) stockNameInput.value = savedStockName;
-            if (savedShares) sharesInput.value = savedShares;
-            if (savedPurchasePrice) purchasePriceInput.value = savedPurchasePrice;
+        if (savedStockName) stockNameInput.value = savedStockName;
+        if (savedShares) sharesInput.value = savedShares;
+        if (savedPurchasePrice) purchasePriceInput.value = savedPurchasePrice;
 
-            if (savedStockName && savedShares && savedPurchasePrice) {
-                // If all data is loaded, try to calculate automatically
-                calculateDividend();
+        if (savedStockName && savedShares && savedPurchasePrice) {
+          // If all data is loaded, try to calculate automatically
+          calculateDividend();
+        }
+      });
+
+      dividendForm.addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
+        calculateDividend();
+      });
+
+      async function calculateDividend() {
+        const stockNameOrTicker = stockNameInput.value.trim();
+        const shares = parseInt(sharesInput.value);
+        const purchasePrice = parseFloat(purchasePriceInput.value);
+
+        // Save current inputs to localStorage
+        localStorage.setItem("diviyield_stockName", stockNameOrTicker);
+        localStorage.setItem("diviyield_shares", shares);
+        localStorage.setItem("diviyield_purchasePrice", purchasePrice);
+
+        if (
+          !stockNameOrTicker ||
+          isNaN(shares) ||
+          shares <= 0 ||
+          isNaN(purchasePrice) ||
+          purchasePrice <= 0
+        ) {
+          resultsDiv.innerHTML =
+            '<p class="error-message">모든 입력값을 올바르게 채워주세요 (주식 수는 1 이상, 매수 단가는 1 이상).</p>';
+          return;
+        }
+
+        resultsDiv.innerHTML = "<p>배당금 정보를 가져오는 중...</p>";
+
+        try {
+          // Step 1: Search for the stock to get its ticker if a name was provided
+          let ticker = stockNameOrTicker;
+          if (!/^[A-Za-z0-9]+$/.test(stockNameOrTicker)) {
+            // Basic check if it's likely a name
+            const searchResponse = await fetch(
+              `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${encodeURIComponent(
+                stockNameOrTicker
+              )}&apikey=${ALPHA_VANTAGE_API_KEY}`
+            );
+            const searchData = await searchResponse.json();
+
+            if (searchData.bestMatches && searchData.bestMatches.length > 0) {
+              // Prioritize Korean stock exchange or most relevant match
+              const koreanMatch = searchData.bestMatches.find(
+                (match) => match["4. region"] === "Korea"
+              );
+              if (koreanMatch) {
+                ticker = koreanMatch["1. symbol"];
+              } else {
+                ticker = searchData.bestMatches[0]["1. symbol"];
+              }
+              stockNameInput.value = ticker; // Update input with found ticker
+            } else {
+              resultsDiv.innerHTML = `<p class="error-message">"${stockNameOrTicker}"에 대한 주식 정보를 찾을 수 없습니다. 정확한 종목명 또는 티커를 입력해주세요.</p>`;
+              return;
             }
-        });
+          }
 
-        dividendForm.addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission
-            calculateDividend();
-        });
+          // Step 2: Get dividend information using the ticker
+          const dividendResponse = await fetch(
+            `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${ticker}&apikey=${ALPHA_VANTAGE_API_KEY}`
+          );
+          const dividendData = await dividendResponse.json();
 
-        async function calculateDividend() {
-            const stockNameOrTicker = stockNameInput.value.trim();
-            const shares = parseInt(sharesInput.value);
-            const purchasePrice = parseFloat(purchasePriceInput.value);
+          if (
+            dividendData["Error Message"] ||
+            !dividendData["Time Series (Daily)"]
+          ) {
+            resultsDiv.innerHTML = `<p class="error-message">"${ticker}"에 대한 배당금 정보를 가져올 수 없습니다. 다시 시도하거나 다른 종목을 입력해주세요.</p>`;
+            return;
+          }
 
-            // Save current inputs to localStorage
-            localStorage.setItem('diviyield_stockName', stockNameOrTicker);
-            localStorage.setItem('diviyield_shares', shares);
-            localStorage.setItem('diviyield_purchasePrice', purchasePrice);
+          let latestDividendPerShare = 0;
+          let lastDividendDate = "N/A";
 
-            if (!stockNameOrTicker || isNaN(shares) || shares <= 0 || isNaN(purchasePrice) || purchasePrice <= 0) {
-                resultsDiv.innerHTML = '<p class="error-message">모든 입력값을 올바르게 채워주세요 (주식 수는 1 이상, 매수 단가는 1 이상).</p>';
-                return;
+          // Alpha Vantage's daily adjusted data contains dividend_amount
+          const timeSeries = dividendData["Time Series (Daily)"];
+          const dates = Object.keys(timeSeries).sort().reverse(); // Get latest dates first
+
+          for (const date of dates) {
+            const dailyData = timeSeries[date];
+            if (
+              dailyData["7. dividend amount"] &&
+              parseFloat(dailyData["7. dividend amount"]) > 0
+            ) {
+              latestDividendPerShare = parseFloat(
+                dailyData["7. dividend amount"]
+              );
+              lastDividendDate = date;
+              break; // Found the most recent dividend
             }
+          }
 
-            resultsDiv.innerHTML = '<p>배당금 정보를 가져오는 중...</p>';
+          if (latestDividendPerShare === 0) {
+            resultsDiv.innerHTML = `<p class="error-message">"${ticker}"에 대한 최근 배당금 기록을 찾을 수 없습니다. (데이터 부족 또는 배당 이력 없음)</p>`;
+            return;
+          }
 
-            try {
-                // Step 1: Search for the stock to get its ticker if a name was provided
-                let ticker = stockNameOrTicker;
-                if (!/^[A-Za-z0-9]+$/.test(stockNameOrTicker)) { // Basic check if it's likely a name
-                    const searchResponse = await fetch(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${encodeURIComponent(stockNameOrTicker)}&apikey=${ALPHA_VANTAGE_API_KEY}`);
-                    const searchData = await searchResponse.json();
+          const totalGrossDividend = latestDividendPerShare * shares;
+          const taxAmount = totalGrossDividend * TAX_RATE;
+          const netDividend = totalGrossDividend - taxAmount;
+          const estimatedYield = (latestDividendPerShare / purchasePrice) * 100;
 
-                    if (searchData.bestMatches && searchData.bestMatches.length > 0) {
-                        // Prioritize Korean stock exchange or most relevant match
-                        const koreanMatch = searchData.bestMatches.find(match => match['4. region'] === 'Korea');
-                        if (koreanMatch) {
-                            ticker = koreanMatch['1. symbol'];
-                        } else {
-                            ticker = searchData.bestMatches[0]['1. symbol'];
-                        }
-                        stockNameInput.value = ticker; // Update input with found ticker
-                    } else {
-                        resultsDiv.innerHTML = `<p class="error-message">"${stockNameOrTicker}"에 대한 주식 정보를 찾을 수 없습니다. 정확한 종목명 또는 티커를 입력해주세요.</p>`;
-                        return;
-                    }
-                }
-
-                // Step 2: Get dividend information using the ticker
-                const dividendResponse = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${ticker}&apikey=${ALPHA_VANTAGE_API_KEY}`);
-                const dividendData = await dividendResponse.json();
-
-                if (dividendData['Error Message'] || !dividendData['Time Series (Daily)']) {
-                    resultsDiv.innerHTML = `<p class="error-message">"${ticker}"에 대한 배당금 정보를 가져올 수 없습니다. 다시 시도하거나 다른 종목을 입력해주세요.</p>`;
-                    return;
-                }
-
-                let latestDividendPerShare = 0;
-                let lastDividendDate = 'N/A';
-
-                // Alpha Vantage's daily adjusted data contains dividend_amount
-                const timeSeries = dividendData['Time Series (Daily)'];
-                const dates = Object.keys(timeSeries).sort().reverse(); // Get latest dates first
-
-                for (const date of dates) {
-                    const dailyData = timeSeries[date];
-                    if (dailyData['7. dividend amount'] && parseFloat(dailyData['7. dividend amount']) > 0) {
-                        latestDividendPerShare = parseFloat(dailyData['7. dividend amount']);
-                        lastDividendDate = date;
-                        break; // Found the most recent dividend
-                    }
-                }
-
-                if (latestDividendPerShare === 0) {
-                    resultsDiv.innerHTML = `<p class="error-message">"${ticker}"에 대한 최근 배당금 기록을 찾을 수 없습니다. (데이터 부족 또는 배당 이력 없음)</p>`;
-                    return;
-                }
-
-                const totalGrossDividend = latestDividendPerShare * shares;
-                const taxAmount = totalGrossDividend * TAX_RATE;
-                const netDividend = totalGrossDividend - taxAmount;
-                const estimatedYield = (latestDividendPerShare / purchasePrice) * 100;
-
-                resultsDiv.innerHTML = `
+          resultsDiv.innerHTML = `
                     <p><strong>종목명:</strong> ${ticker}</p>
                     <p><strong>보유 주식 수:</strong> ${shares.toLocaleString()}주</p>
                     <p><strong>1주당 예상 배당금 (최근):</strong> ${latestDividendPerShare.toLocaleString()}원</p>
                     <p><strong>최근 배당락일:</strong> ${lastDividendDate}</p>
                     ---
-                    <p><strong>총 예상 배당금 (세전):</strong> ${totalGrossDividend.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}원</p>
-                    <p><strong>예상 세금 (15.4%):</strong> ${taxAmount.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}원</p>
-                    <p><strong>최종 세후 수령액:</strong> <strong>${netDividend.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}원</strong></p>
-                    <p><strong>예상 배당 수익률 (매수 단가 대비):</strong> <strong>${estimatedYield.toFixed(2)}%</strong></p>
+                    <p><strong>총 예상 배당금 (세전):</strong> ${totalGrossDividend.toLocaleString(
+                      "ko-KR",
+                      { maximumFractionDigits: 0 }
+                    )}원</p>
+                    <p><strong>예상 세금 (15.4%):</strong> ${taxAmount.toLocaleString(
+                      "ko-KR",
+                      { maximumFractionDigits: 0 }
+                    )}원</p>
+                    <p><strong>최종 세후 수령액:</strong> <strong>${netDividend.toLocaleString(
+                      "ko-KR",
+                      { maximumFractionDigits: 0 }
+                    )}원</strong></p>
+                    <p><strong>예상 배당 수익률 (매수 단가 대비):</strong> <strong>${estimatedYield.toFixed(
+                      2
+                    )}%</strong></p>
                 `;
-
-            } catch (error) {
-                console.error("Error fetching dividend data:", error);
-                resultsDiv.innerHTML = '<p class="error-message">배당금 정보를 가져오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</p>';
-            }
+        } catch (error) {
+          console.error("Error fetching dividend data:", error);
+          resultsDiv.innerHTML =
+            '<p class="error-message">배당금 정보를 가져오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</p>';
         }
+      }
     </script>
-</body>
+  </body>
 </html>
