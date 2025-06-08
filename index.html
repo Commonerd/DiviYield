@@ -333,40 +333,32 @@
           monthlyAdditionInput.value = savedMonthlyAddition;
 
         // Optional: Auto-calculate if all fields are pre-filled
-        if (
-          savedMonthlyGoal &&
-          savedExpectedYield &&
-          savedInitialInvestment &&
-          savedMonthlyAddition
-        ) {
-          calculateDividendPipeline();
-        }
+        // 이 부분을 활성화하면 페이지 로드 시 저장된 데이터로 바로 계산합니다.
+        // if (savedMonthlyGoal && savedExpectedYield && savedInitialInvestment && savedMonthlyAddition) {
+        //     calculateDividendPipeline();
+        // }
       });
 
       dividendForm.addEventListener("submit", function (event) {
-        event.preventDefault();
+        event.preventDefault(); // 기본 폼 제출 방지
         calculateDividendPipeline();
       });
 
       function calculateDividendPipeline() {
+        // 입력값 파싱 (항상 .value로 값 가져오기)
         const monthlyGoal = parseFloat(monthlyGoalInput.value);
-        const expectedYield = parseFloat(expectedYieldInput.value) / 100; // Convert percentage to decimal
-        let currentInvestment = parseFloat(initialInvestmentInput.value); // 초기 투자 원금
+        const expectedYield = parseFloat(expectedYieldInput.value) / 100; // %를 소수점으로 변환
+        const initialInvestment = parseFloat(initialInvestmentInput.value); // 초기 투자 원금
         const monthlyAddition = parseFloat(monthlyAdditionInput.value);
 
-        // Save current inputs to localStorage
-        localStorage.setItem("diviyield_monthlyGoal", monthlyGoal);
-        localStorage.setItem("diviyield_expectedYield", monthlyGoalInput.value); // Store as entered (e.g., 4.5)
-        localStorage.setItem("diviyield_initialInvestment", currentInvestment);
-        localStorage.setItem("diviyield_monthlyAddition", monthlyAddition);
-
+        // 입력값 유효성 검사
         if (
           isNaN(monthlyGoal) ||
           monthlyGoal <= 0 ||
           isNaN(expectedYield) ||
           expectedYield <= 0 ||
-          isNaN(currentInvestment) ||
-          currentInvestment < 0 ||
+          isNaN(initialInvestment) ||
+          initialInvestment < 0 ||
           isNaN(monthlyAddition) ||
           monthlyAddition < 0
         ) {
@@ -375,6 +367,15 @@
           return;
         }
 
+        // 로컬 스토리지에 현재 입력값 저장
+        localStorage.setItem("diviyield_monthlyGoal", monthlyGoal);
+        localStorage.setItem(
+          "diviyield_expectedYield",
+          expectedYieldInput.value
+        ); // 입력된 % 값 그대로 저장
+        localStorage.setItem("diviyield_initialInvestment", initialInvestment);
+        localStorage.setItem("diviyield_monthlyAddition", monthlyAddition);
+
         // 월 목표 배당금을 위한 세전 연간 필요 투자 원금 계산
         // (월 목표 배당금 / (1 - 세금률)) * 12개월 / 연평균 배당수익률
         const annualPreTaxDividendGoal = (monthlyGoal / (1 - TAX_RATE)) * 12;
@@ -382,84 +383,86 @@
           annualPreTaxDividendGoal / expectedYield;
 
         let monthsToReachGoal = 0;
-        let simulationInvestment = currentInvestment; // 시뮬레이션을 위한 별도 변수
+        let simulationInvestment = initialInvestment; // 시뮬레이션을 위한 별도 변수 (초기값은 initialInvestment)
         let simulationMonthlyDividend =
           ((simulationInvestment * expectedYield) / 12) * (1 - TAX_RATE); // 세후 월 배당금
 
+        // 현재 투자 원금으로 이미 목표 달성했는지 확인
         if (simulationMonthlyDividend >= monthlyGoal) {
           resultsDiv.innerHTML = `
-                  <p>축하합니다! 현재 투자 원금으로 이미 <strong class="highlight">${monthlyGoal.toLocaleString(
-                    "ko-KR",
-                    { maximumFractionDigits: 0 }
-                  )}원</strong>의 월 목표 배당금을 달성했습니다.</p>
-                  <p>현재 예상되는 월 세후 배당금: <strong>${simulationMonthlyDividend.toLocaleString(
-                    "ko-KR",
-                    { maximumFractionDigits: 0 }
-                  )}원</strong></p>
-                  <p>월 ${monthlyGoal.toLocaleString("ko-KR", {
-                    maximumFractionDigits: 0,
-                  })}원 배당금 달성을 위한 이론적 필요 원금 (세전 배당 기준): ${requiredPrincipalForGoal.toLocaleString(
+                    <p>축하합니다! 현재 투자 원금으로 이미 <strong class="highlight">${monthlyGoal.toLocaleString(
+                      "ko-KR",
+                      { maximumFractionDigits: 0 }
+                    )}원</strong>의 월 목표 배당금을 달성했습니다!</p>
+                    <p>현재 예상되는 월 세후 배당금: <strong>${simulationMonthlyDividend.toLocaleString(
+                      "ko-KR",
+                      { maximumFractionDigits: 0 }
+                    )}원</strong></p>
+                    <p>월 ${monthlyGoal.toLocaleString("ko-KR", {
+                      maximumFractionDigits: 0,
+                    })}원 배당금 달성을 위한 이론적 필요 원금 (세전 배당 기준): ${requiredPrincipalForGoal.toLocaleString(
             "ko-KR",
             { maximumFractionDigits: 0 }
           )}원</p>
-              `;
+                `;
           return;
         }
 
-        // 시뮬레이션
+        // 시뮬레이션 실행 (최대 50년 = 600개월)
         for (let i = 0; i < 600; i++) {
-          // 최대 50년(600개월) 시뮬레이션
           monthsToReachGoal++;
-          simulationInvestment += monthlyAddition; // 월 추가 투자
+          simulationInvestment += monthlyAddition; // 매월 추가 투자금 반영
           simulationMonthlyDividend =
-            ((simulationInvestment * expectedYield) / 12) * (1 - TAX_RATE); // 세후 월 배당금
+            ((simulationInvestment * expectedYield) / 12) * (1 - TAX_RATE); // 세후 월 배당금 재계산
 
           if (simulationMonthlyDividend >= monthlyGoal) {
-            break;
+            break; // 목표 달성 시 루프 종료
           }
         }
 
         let resultHtml = `
-              <p>월 <strong class="highlight">${monthlyGoal.toLocaleString(
-                "ko-KR",
-                { maximumFractionDigits: 0 }
-              )}원</strong>의 배당금을 달성하기 위해 필요한 이론적 투자 원금은 (세전 배당 기준) 약 <strong class="highlight">${requiredPrincipalForGoal.toLocaleString(
+                <p>월 <strong class="highlight">${monthlyGoal.toLocaleString(
+                  "ko-KR",
+                  { maximumFractionDigits: 0 }
+                )}원</strong>의 배당금을 달성하기 위해 필요한 이론적 투자 원금은 (세전 배당 기준) 약 <strong class="highlight">${requiredPrincipalForGoal.toLocaleString(
           "ko-KR",
           { maximumFractionDigits: 0 }
         )}원</strong>입니다.</p>
-          `;
+            `;
 
         if (monthsToReachGoal >= 600) {
+          // 50년 이내에 목표 달성 실패
           resultHtml += `<p class="error-message">
-                  현재 투자 계획으로는 50년 이내에 월 목표 배당금 <strong class="highlight">${monthlyGoal.toLocaleString(
-                    "ko-KR",
-                    { maximumFractionDigits: 0 }
-                  )}원</strong> 달성이 어려울 수 있습니다.
-                  목표를 낮추거나, 초기 및 월 추가 투자금을 늘리는 것을 고려해 보세요.
-                  </p>`;
+                    현재 투자 계획으로는 50년 이내에 월 목표 배당금 <strong class="highlight">${monthlyGoal.toLocaleString(
+                      "ko-KR",
+                      { maximumFractionDigits: 0 }
+                    )}원</strong> 달성이 어려울 수 있습니다.
+                    목표를 낮추거나, 초기 및 월 추가 투자금을 늘리는 것을 고려해 보세요.
+                    </p>`;
         } else {
+          // 목표 달성
           const years = Math.floor(monthsToReachGoal / 12);
           const remainingMonths = monthsToReachGoal % 12;
 
           resultHtml += `
-                  <p>고객님의 현재 투자 계획 (초기 ${initialInvestment.toLocaleString(
-                    "ko-KR",
-                    { maximumFractionDigits: 0 }
-                  )}원, 월 ${monthlyAddition.toLocaleString("ko-KR", {
+                    <p>고객님의 현재 투자 계획 (초기 ${initialInvestment.toLocaleString(
+                      "ko-KR",
+                      { maximumFractionDigits: 0 }
+                    )}원, 월 ${monthlyAddition.toLocaleString("ko-KR", {
             maximumFractionDigits: 0,
           })}원 추가)으로 월 목표 배당금을 달성하려면 약 <strong>${years}년 ${remainingMonths}개월 후</strong> 예상됩니다.</p>
-                  <p>그때의 예상 총 투자 원금: <strong>${simulationInvestment.toLocaleString(
-                    "ko-KR",
-                    { maximumFractionDigits: 0 }
-                  )}원</strong></p>
-                  <p>그때의 예상 월 세후 배당금: <strong>${simulationMonthlyDividend.toLocaleString(
-                    "ko-KR",
-                    { maximumFractionDigits: 0 }
-                  )}원</strong></p>
-                  <p class="input-hint" style="text-align: center; margin-top: 20px;">
-                      <br>💡 <strong>팁:</strong> 예상 배당수익률을 높이거나, 초기/월 투자금을 늘리면 목표 달성 시점을 단축할 수 있습니다.
-                  </p>
-              `;
+                    <p>그때의 예상 총 투자 원금: <strong>${simulationInvestment.toLocaleString(
+                      "ko-KR",
+                      { maximumFractionDigits: 0 }
+                    )}원</strong></p>
+                    <p>그때의 예상 월 세후 배당금: <strong>${simulationMonthlyDividend.toLocaleString(
+                      "ko-KR",
+                      { maximumFractionDigits: 0 }
+                    )}원</strong></p>
+                    <p class="input-hint" style="text-align: center; margin-top: 20px;">
+                        <br>💡 <strong>팁:</strong> 예상 배당수익률을 높이거나, 초기/월 투자금을 늘리면 목표 달성 시점을 단축할 수 있습니다.
+                    </p>
+                `;
         }
 
         resultsDiv.innerHTML = resultHtml;
